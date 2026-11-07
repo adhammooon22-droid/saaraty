@@ -1,0 +1,33 @@
+name: Build APK
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main, master]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Unzip project
+        run: unzip -q saaraty-apk.zip
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 17
+
+      - uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: 8.9
+
+      - name: Build APK
+        run: gradle assembleDebug --no-daemon
+        working-directory: saaraty-apk
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: saaraty-apk
+          path: saaraty-apk/app/build/outputs/apk/debug/app-debug.apk
